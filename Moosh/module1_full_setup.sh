@@ -1,88 +1,30 @@
 #!/bin/bash
-# filepath: /opt/moosh/module1_full_setup.sh
 
 MOOSH="docker exec moodle moosh -n -p /opt/bitnami/moodle"
 COURSE="5"
 
-# --- Session definitions: name, notebook filename, and creative content ---
-declare -A SESSIONS=(
-  ["Session 1.1: Python Basics"]="session1.1_Basics.ipynb"
-  ["Session 1.2: Modules and Packages"]="session1.2_Modules.ipynb"
-  ["Session 1.3: Data Structures"]="session1.3_DataStructures.ipynb"
-  ["Session 1.4: Advanced Data Structures"]="session1.4_AdvancedDataStructures.ipynb"
-  ["Session 1.5: Conditions and Loops"]="session1.5_ConditionsLoops.ipynb"
-  ["Session 1.6: Functions"]="session1.6_Functions.ipynb"
-  ["Session 1.7: Dates and Times"]="session1.7_DatesTimes.ipynb"
-  ["Session 1.8: Regular Expressions"]="session1.8_Regular_Expressions.ipynb"
-  ["Session 1.9: Classes"]="session1.9_Classes.ipynb"
-  ["Session 1.10: Decorators"]="session1.10_Decorators.ipynb"
-  ["Session 1.11: Virtual Environments"]="session1.11_VirtualEnvs.ipynb"
-  ["Session 1.12: Exception Handling"]="session1.12_ExceptionHandling.ipynb"
-  ["Session 1.13: Context Managers and File I/O"]="session1.13_ContextManagers_FileIO.ipynb"
-  ["Session 1.14: Iterators and Generators"]="session1.14_IteratorsGenerators.ipynb"
-  ["Session 1.15: String Processing"]="session1.15_StringProcessing.ipynb"
-  ["Session 1.16: APIs and JSON"]="session1.16_APIs_JSON.ipynb"
-  ["Welcome & Introduction"]="1-Welcome-Introduction.ipynb"
-)
+echo "Starting Module 1 - Core Python setup..."
 
-# --- Create sections and upload notebooks ---
-for SESSION in "${!SESSIONS[@]}"; do
-  NOTEBOOK="${SESSIONS[$SESSION]}"
-  echo "Adding section: $SESSION"
-  $MOOSH course-section-add "$COURSE" --name="$SESSION"
-  if [ -f "/bitnami/moodledata/$NOTEBOOK" ]; then
-    echo "Uploading notebook: $NOTEBOOK"
-    $MOOSH file-add "$COURSE" "/bitnami/moodledata/$NOTEBOOK" --section="$SESSION"
-  else
-    echo "Notebook not found: /bitnami/moodledata/$NOTEBOOK (skipping upload)"
-  fi
-done
+# Add new sections (these work correctly)
+echo "Adding new sections..."
+$MOOSH section-config-set $COURSE 6 name "Welcome & Introduction"
+$MOOSH section-config-set $COURSE 7 name "Session 1.1: Python Basics"
+$MOOSH section-config-set $COURSE 8 name "Session 1.2: Modules and Packages"
+$MOOSH section-config-set $COURSE 9 name "Session 1.3: Data Structures"
+$MOOSH section-config-set $COURSE 10 name "Session 1.4: Advanced Data Structures"
+$MOOSH section-config-set $COURSE 11 name "Session 1.5: Conditions and Loops"
+$MOOSH section-config-set $COURSE 12 name "Session 1.6: Functions"
+$MOOSH section-config-set $COURSE 13 name "Session 1.7: Dates and Times"
 
-# --- Add creative content for selected sessions ---
+# Add activities with correct syntax
+echo "Adding activities..."
+$MOOSH activity-add page $COURSE
+$MOOSH activity-add page $COURSE
 
-# Welcome page
-$MOOSH page-add "$COURSE" "Welcome to the Python Academy!" \
-  --section="Welcome & Introduction" \
-  --content="<h2>Welcome, Data Innovator!</h2>
-<p>This course will transform your healthcare data skills.<br>
-<b>Tip:</b> Try the interactive notebooks and quizzes for hands-on learning.<br>
-🚀 <i>Let’s get started!</i></p>"
+# Add labels with correct syntax
+echo "Adding practice labels..."
+$MOOSH label-create --section=7 --text="🧑‍⚕️ Practice: Create patient profiles and calculate BMI" $COURSE
+$MOOSH label-create --section=8 --text="📚 Essential libraries: datetime, math, json, csv for healthcare" $COURSE
 
-# Session 1.1: Python Basics - Practice label
-$MOOSH label-add "$COURSE" "🧑‍⚕️ <b>Practice:</b> Create a patient profile and calculate BMI. Try the exercise in the notebook or share your code in the forum!" --section="Session 1.1: Python Basics"
-
-# Session 1.4: Advanced Data Structures - Case study page
-$MOOSH page-add "$COURSE" "Case Study: Nested Patient Records" \
-  --section="Session 1.4: Advanced Data Structures" \
-  --content="<h3>Case Study: Nested Patient Records</h3>
-<p>Explore how nested lists and dictionaries are used to represent complex healthcare data, such as patient visits and clinical trials. Try flattening the following structure for DataFrame use:</p>
-<pre>
-patients = [
-  {'id': 'PT001', 'name': 'John Doe', 'visits': [{'date': '2025-01-10', 'bp': '140/90'}, {'date': '2025-03-15', 'bp': '135/85'}]},
-  {'id': 'PT002', 'name': 'Jane Smith', 'visits': [{'date': '2025-02-20', 'bp': '130/80'}]}
-]
-</pre>
-<p><b>Challenge:</b> Write code to flatten all visits for DataFrame analysis!</p>"
-
-# Session 1.8: Regular Expressions - Quiz
-$MOOSH quiz-add "$COURSE" "Session 1.8: Regex Knowledge Check" --section="Session 1.8: Regular Expressions"
-$MOOSH question-add "$COURSE" "Session 1.8: Regex Knowledge Check" "multichoice" \
-  --name="Extracting Patient IDs" \
-  --questiontext="Which regex pattern extracts IDs like PT001, PT002 from text?" \
-  --answer="PT\\d{3}" --correct \
-  --answer="PT[A-Z]{3}" \
-  --answer="\\d{3}PT" \
-  --answer="Patient\\d+"
-$MOOSH question-add "$COURSE" "Session 1.8: Regex Knowledge Check" "shortanswer" \
-  --name="Regex for Dates" \
-  --questiontext="Write a regex to extract dates in the format YYYY-MM-DD." \
-  --answer="\\d{4}-\\d{2}-\\d{2}"
-
-# Session 1.15: String Processing - Mini-project page
-$MOOSH page-add "$COURSE" "Mini-Project: Clinical Notes Processor" \
-  --section="Session 1.15: String Processing" \
-  --content="<h3>Mini-Project: Clinical Notes Processor</h3>
-<p>Build a system that processes clinical notes and extracts structured information such as patient names, diagnoses, and treatment plans. Use advanced string methods and regular expressions for text cleaning and analysis.</p>
-<p><b>Bonus:</b> Try to calculate document similarity using Jaccard similarity!</p>"
-
-echo "All Module 1 sessions, notebooks, and creative content processed."
+echo "✅ Module 1 setup completed!"
+echo "🌐 Check your course at: http://localhost:8081/course/view.php?id=5"
